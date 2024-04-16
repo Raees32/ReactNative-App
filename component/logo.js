@@ -1,34 +1,43 @@
 
-import { View, StyleSheet, Image, Animated, Easing } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Image, StyleSheet, Animated, Easing } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import SoundPlayer from 'react-native-sound-player';
-import React, { useRef  , useEffect } from 'react';
-
-
-import { StackRouter } from '@react-navigation/routers';
-
-
 
 const SimpleScreen = () => {
-  const rotation = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation();
 
   useEffect(() => {
     // Load and play the sound when the component mounts
     try {
       // Play the sound
       SoundPlayer.playSoundFile('beach-sequence-60115', 'mp3');
-      
+
+      // Stop the sound after 5 seconds
       setTimeout(() => {
         SoundPlayer.stop();
-      }, 5000);
+      }, 3000);
     } catch (error) {
       console.log('Failed to play the sound', error);
     }
 
+    // Navigate to the SignIn screen after 4 seconds
+    const timer = setTimeout(() => {
+      navigation.navigate('Sigin');
+    }, 3000);
+
     return () => {
-      // Stop the sound when the component unmounts
-      SoundPlayer.stop();
+      // Clear the timeout when the component unmounts
+      clearTimeout(timer);
     };
-  }, []);
+  }, [navigation]);
+
+  // Animation setup
+  const rotation = new Animated.Value(0);
+  const spin = rotation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   useEffect(() => {
     // Start the logo rotation animation when the component mounts
@@ -40,12 +49,7 @@ const SimpleScreen = () => {
         useNativeDriver: true,
       })
     ).start();
-  }, []);
-
-  const spin = rotation.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  });
+  }, [rotation]);
 
   return (
     <View style={styles.container}>
@@ -57,7 +61,6 @@ const SimpleScreen = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
